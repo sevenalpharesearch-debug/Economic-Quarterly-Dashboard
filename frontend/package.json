@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "deploy": "gh-pages -d dist",
-    "update-data": "node scripts/generate-data.js",
+    "update-data": "node scripts/generate-data.cjs",
     "dev": "npm run update-data && vite",
-    "build": "node scripts/generate-data.js && vite build",
+    "build": "node scripts/generate-data.cjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { parseWorkbookBuffer, ensureMarketSectorInIndustries } = require('./parser');
+const { parseWorkbookBuffer, ensureMarketSectorInIndustries } = require('./parser.cjs');
 
 const activeFilePath = path.join(__dirname, '..', '..', 'Data.xlsx');
 const outputFilePath = path.join(__dirname, '..', 'public', 'data.json');
