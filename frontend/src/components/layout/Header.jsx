@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
 function ThemeToggle({ isDark, onToggle }) {
@@ -82,7 +81,6 @@ function ThemeToggle({ isDark, onToggle }) {
 
 export default function Header() {
   const { isDark, toggle } = useTheme();
-  const navigate = useNavigate();
 
   return (
     <header
@@ -103,7 +101,7 @@ export default function Header() {
         {/* ── Left: Logo + wordmark ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div 
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => window.location.href = import.meta.env.BASE_URL}
             style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
             title="Go to Dashboard"
           >
