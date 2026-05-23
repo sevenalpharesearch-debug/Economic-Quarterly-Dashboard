@@ -824,7 +824,7 @@ function buildDashboard(allData) {
     title: 'India Macro Economy Dashboard',
     subtitle: 'Real macroeconomic data — GST collections, CPI inflation, trade balance, PMI, repo rate, and currency',
     metrics: [
-      { label: 'GST Collections (Rs.B)', value: `Rs.${safe(gst).toFixed(0)}B`,       change: kch(gst)[0],              up: kch(gst)[1] },
+      { label: 'GST Collections (Rs.B)', value: `Rs.${safe(gst).toFixed(2)}B`,       change: kch(gst)[0],              up: kch(gst)[1] },
       { label: 'CPI Inflation (%)',       value: `${safe(cpi)}%`,                     change: kch(cpi, true, '%')[0],   up: kch(cpi, true)[1] },
       { label: 'Trade Balance (Rs.B)',    value: `Rs.${safe(trade).toFixed(0)}B`,     change: kch(trade, true, 'B')[0], up: kch(trade, true)[1] },
       { label: 'Composite PMI',           value: String(safe(pmiC)),                  change: kch(pmiC, true)[0],       up: kch(pmiC, true)[1] },
@@ -835,7 +835,7 @@ function buildDashboard(allData) {
     ],
     tableColumns: QC,
     tableRows: [
-      qr('GST Collections (Rs.B)',    gst,   x => x.toFixed(0)),
+      qr('GST Collections (Rs.B)',    gst,   x => x.toFixed(2)),
       qr('CPI Inflation (%)',         cpi),
       qr('Trade Balance (Rs.B)',      trade),
       qr('Composite PMI',             pmiC),

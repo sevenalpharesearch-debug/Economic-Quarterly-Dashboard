@@ -1,6 +1,7 @@
 export const getDashboardData = async () => {
   const baseUrl = import.meta.env.BASE_URL;
-  const response = await fetch(`${baseUrl}data.json`);
+  const timestamp = new Date().getTime();
+  const response = await fetch(`${baseUrl}data.json?t=${timestamp}`);
   if (!response.ok) {
     throw new Error('Failed to load static data');
   }
