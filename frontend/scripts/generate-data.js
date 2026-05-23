@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const { parseWorkbookBuffer, ensureMarketSectorInIndustries } = require('./routes/uploadRoutes');
+const { parseWorkbookBuffer, ensureMarketSectorInIndustries } = require('./parser');
 
-const activeFilePath = path.join(__dirname, 'Files', 'active', 'Economic Quarterly data Final.xlsx');
-const outputFilePath = path.join(__dirname, '..', 'frontend', 'public', 'data.json');
+const activeFilePath = path.join(__dirname, '..', '..', 'Data.xlsx');
+const outputFilePath = path.join(__dirname, '..', 'public', 'data.json');
 
 try {
   console.log('[Dashboard] Reading Excel file from:', activeFilePath);
@@ -18,7 +18,7 @@ try {
     success: true,
     industries: finalData,
     defaultDataset: {
-      originalName: 'Economic Quarterly data Final.xlsx',
+      originalName: 'Data.xlsx',
       uploadedAt: new Date().toISOString(),
       size: buffer.length
     }

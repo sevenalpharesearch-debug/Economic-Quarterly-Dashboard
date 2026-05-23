@@ -33,9 +33,6 @@ jobs:
         working-directory: ./frontend
         run: npm ci || npm install
         
-      - name: Install backend dependencies (for data parsing)
-        working-directory: ./backend
-        run: npm ci || npm install
         
       - name: Build site
         working-directory: ./frontend
