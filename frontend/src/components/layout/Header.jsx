@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
 function ThemeToggle({ isDark, onToggle }) {
@@ -83,20 +81,8 @@ function ThemeToggle({ isDark, onToggle }) {
 }
 
 export default function Header() {
-  const { user, logout } = useAuth();
   const { isDark, toggle } = useTheme();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleLogout = async () => {
-    setMenuOpen(false);
-    await logout();
-    navigate('/login');
-  };
-
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'U';
 
   return (
     <header
@@ -168,127 +154,6 @@ export default function Header() {
           {/* Theme toggle */}
           <ThemeToggle isDark={isDark} onToggle={toggle} />
 
-          {/* Admin Panel button */}
-          {user?.role === 'admin' && (
-            <button 
-              onClick={() => navigate('/admin-panel')}
-              className="header-icon-btn hidden sm:flex"
-              title="Admin Panel"
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-          )}
-
-          {/* User menu */}
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setMenuOpen((o) => !o)}
-              className="header-user-btn"
-            >
-              <div style={{
-                width: 28, height: 28, borderRadius: 8,
-                background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(99,102,241,0.3)',
-              }}>
-                {initials}
-              </div>
-              <div className="hidden sm:block" style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text-1)', lineHeight: 1 }}>
-                  {user?.name}
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--c-text-3)', marginTop: 2, lineHeight: 1, textTransform: 'capitalize' }}>
-                  {user?.role}
-                </div>
-              </div>
-              <svg
-                width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                style={{
-                  color: 'var(--c-text-3)',
-                  transition: 'transform 0.2s ease',
-                  transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}
-                className="hidden sm:block"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Dropdown */}
-            {menuOpen && (
-              <>
-                <div style={{ position: 'fixed', inset: 0, zIndex: 30 }} onClick={() => setMenuOpen(false)} />
-                <div
-                  className="fade-in-up"
-                  style={{
-                    position: 'absolute', right: 0, top: 'calc(100% + 8px)',
-                    width: 220, borderRadius: 14, zIndex: 40, overflow: 'hidden',
-                    background: 'var(--c-popup-bg)',
-                    border: '1px solid var(--c-popup-border)',
-                    boxShadow: `0 20px 60px var(--c-popup-shadow)`,
-                    backdropFilter: 'blur(20px)',
-                  }}
-                >
-                  {/* User info */}
-                  <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--c-divider)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 10,
-                      background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: '#fff', fontSize: 13, fontWeight: 700, flexShrink: 0,
-                    }}>
-                      {initials}
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text-1)' }}>{user?.name}</div>
-                      <div style={{ fontSize: 11, color: 'var(--c-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
-                        {user?.email}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Role badge */}
-                  <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--c-divider)' }}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      fontSize: 11, fontWeight: 600, color: '#818cf8',
-                      background: 'rgba(99,102,241,0.1)', padding: '4px 10px',
-                      borderRadius: 999, textTransform: 'capitalize',
-                    }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8' }} />
-                      {user?.role}
-                    </span>
-                  </div>
-
-                  {/* Sign out */}
-                  <div style={{ padding: 6 }}>
-                    <button
-                      onClick={handleLogout}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '9px 12px', borderRadius: 8,
-                        fontSize: 13, color: '#f87171',
-                        background: 'transparent', border: 'none', cursor: 'pointer',
-                        fontFamily: 'inherit', transition: 'background 0.15s ease',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+
 import DashboardLayout from '../components/layout/DashboardLayout';
 import IndustrySelect from '../components/dashboard/IndustrySelect';
 import KPICard from '../components/dashboard/KPICard';
@@ -392,8 +392,6 @@ function buildAllSectorKpis(industry) {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
   const [selectedId, setSelectedId] = useState(DEFAULT_INDUSTRY);
   const [industryData, setIndustryData] = useState(null);
   const [loading, setLoading] = useState(true);

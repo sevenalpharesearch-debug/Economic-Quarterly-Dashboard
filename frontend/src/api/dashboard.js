@@ -1,40 +1,22 @@
-import api from './axios';
-
 export const getDashboardData = async () => {
-  const { data } = await api.get('/upload/data');
+  const response = await fetch('/data.json');
+  if (!response.ok) {
+    throw new Error('Failed to load static data');
+  }
+  const data = await response.json();
   return data;
 };
 
-export const getDatasetStatus = async () => {
-  const { data } = await api.get('/upload/status');
-  return data;
-};
-
-export const uploadPreviewFile = async (formData) => {
-  const { data } = await api.post('/upload/excel', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return data;
-};
-
-export const setDefaultDataset = async () => {
-  const { data } = await api.post('/upload/set-default');
-  return data;
-};
-
-export const discardTempDataset = async () => {
-  const { data } = await api.post('/upload/discard-temp');
-  return data;
-};
-
-export const restoreBackup = async (backupId) => {
-  const { data } = await api.post('/upload/restore-backup', { backupId });
-  return data;
-};
-
-export const deleteBackup = async (backupId) => {
-  const { data } = await api.post('/upload/delete-backup', { backupId });
-  return data;
-};
-
+// Mock other endpoints since there is no backend
+export const getDatasetStatus = async () => ({
+  success: true,
+  defaultDataset: { originalName: 'Economic Quarterly data Final.xlsx', size: 0 },
+  tempDataset: null,
+  backups: [],
+});
 export const getBackups = getDatasetStatus;
+export const uploadPreviewFile = async () => ({ success: false });
+export const setDefaultDataset = async () => ({ success: false });
+export const discardTempDataset = async () => ({ success: false });
+export const restoreBackup = async () => ({ success: false });
+export const deleteBackup = async () => ({ success: false });
