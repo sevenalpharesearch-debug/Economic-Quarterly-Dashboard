@@ -154,7 +154,7 @@ function formatGrowthValue(growth, unit) {
   return `${growth.toFixed(1)}%`;
 }
 
-function calculateGrowth(firstValue, lastValue, unit) {
+function calculateGrowth(firstValue, lastValue, unit, metricName = '') {
   if (!isFiniteNumber(firstValue) || !isFiniteNumber(lastValue)) {
     return null;
   }
@@ -165,7 +165,11 @@ function calculateGrowth(firstValue, lastValue, unit) {
 
   if (firstValue === 0) return null;
 
-  return ((lastValue - firstValue) / Math.abs(firstValue)) * 100;
+  if (normalizeMetricName(metricName) === 'india trade balance') {
+    return ((lastValue - firstValue) / Math.abs(firstValue)) * 100;
+  }
+
+  return ((lastValue - firstValue) / firstValue) * 100;
 }
 
 function buildRowsFromMetricSeries(metrics) {
@@ -347,7 +351,7 @@ function buildDisplayRows(rows, visibleMonths, industryId) {
     return {
       ...row,
       monthCells,
-      growth: calculateGrowth(startValue, endValue, unit),
+      growth: calculateGrowth(startValue, endValue, unit, row.metric),
       unit,
     };
   });
