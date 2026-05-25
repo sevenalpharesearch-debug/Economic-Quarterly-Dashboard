@@ -165,7 +165,7 @@ function calculateGrowth(firstValue, lastValue, unit) {
 
   if (firstValue === 0) return null;
 
-  return ((lastValue - firstValue) / firstValue) * 100;
+  return ((lastValue - firstValue) / Math.abs(firstValue)) * 100;
 }
 
 function buildRowsFromMetricSeries(metrics) {
