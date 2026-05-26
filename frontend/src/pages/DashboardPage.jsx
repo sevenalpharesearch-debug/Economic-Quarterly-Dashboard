@@ -309,11 +309,11 @@ function formatAllMetricKpiValue(val, unit) {
   return parseMetricValueParts(val, unit).displayValue;
 }
 
-function calculateGrowth(current, previous, unit) {
+function calculateGrowth(current, previous, unit, metricName = '') {
   if (current == null || previous == null) return { change: 'N/A', up: null, isNA: true };
   const delta = current - previous;
-  const up = delta >= 0;
-  const sign = up ? '+' : '';
+  let up = delta >= 0;
+  let sign = up ? '+' : '';
 
   if (unit === '%') {
     const bps = Math.round(delta * 100);
@@ -322,6 +322,12 @@ function calculateGrowth(current, previous, unit) {
   }
 
   if (previous !== 0) {
+    if (normalizeMetricName(metricName) === 'banking liquidity') {
+      const growthVal = (delta / previous) * 100;
+      up = growthVal >= 0;
+      sign = growthVal > 0 ? '+' : '';
+      return { change: `${sign}${growthVal.toFixed(1)}%`, up, isNA: false };
+    }
     return { change: `${sign}${((delta / Math.abs(previous)) * 100).toFixed(1)}%`, up, isNA: false };
   }
 
@@ -372,8 +378,8 @@ function buildAllSectorKpis(industry) {
       const previousMom = numericValues.length >= 2 ? numericValues[numericValues.length - 2] : null;
       const previousYoy = numericValues.length >= 13 ? numericValues[numericValues.length - 13] : null;
 
-      const mom = calculateGrowth(current, previousMom, parsedMetric.unit);
-      const yoy = calculateGrowth(current, previousYoy, parsedMetric.unit);
+      const mom = calculateGrowth(current, previousMom, parsedMetric.unit, metricName);
+      const yoy = calculateGrowth(current, previousYoy, parsedMetric.unit, metricName);
 
       return {
         name: finalName,
