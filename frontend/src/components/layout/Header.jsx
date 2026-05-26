@@ -79,7 +79,7 @@ function ThemeToggle({ isDark, onToggle }) {
   );
 }
 
-export default function Header() {
+export default function Header({ onLogout }) {
   const { isDark, toggle } = useTheme();
 
   return (
@@ -148,6 +148,37 @@ export default function Header() {
 
         {/* ── Right: controls ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          
+          {/* Sign Out button */}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginRight: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Sign Out
+            </button>
+          )}
 
           {/* Theme toggle */}
           <ThemeToggle isDark={isDark} onToggle={toggle} />

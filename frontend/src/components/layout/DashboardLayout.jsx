@@ -1,9 +1,9 @@
 import Header from './Header';
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children, onLogout }) {
   return (
     <div className="dash-root">
-      <Header />
+      <Header onLogout={onLogout} />
       <main className="dash-main">
         {children}
       </main>

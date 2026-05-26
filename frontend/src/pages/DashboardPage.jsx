@@ -391,7 +391,7 @@ function buildAllSectorKpis(industry) {
   return cards.length ? cards : (Array.isArray(industry?.metrics) ? industry.metrics : []);
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ onLogout }) {
   const [selectedId, setSelectedId] = useState(DEFAULT_INDUSTRY);
   const [industryData, setIndustryData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -465,7 +465,7 @@ export default function DashboardPage() {
     : INDUSTRIES;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
 
       {/* ═══════════════════════════════════════��══════════════════════════════
           HERO BANNER
