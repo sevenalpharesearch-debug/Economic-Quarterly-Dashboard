@@ -402,6 +402,9 @@ function getTableDensity(monthCount) {
   };
 }
 
+const SOLID_CONTAINER_BG = 'linear-gradient(var(--c-surface-2), var(--c-surface-2)), var(--c-bg)';
+const SOLID_HEADER_BG = `linear-gradient(var(--c-surface-hover), var(--c-surface-hover)), linear-gradient(var(--c-surface-hover), var(--c-surface-hover)), ${SOLID_CONTAINER_BG}`;
+
 export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
   const [filter, setFilter] = useState('12M');
   const [hoveredMetric, setHoveredMetric] = useState(null);
@@ -633,7 +636,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                     top: 0,
                     left: 0,
                     zIndex: 40,
-                    background: 'var(--c-surface-hover)',
+                    background: SOLID_HEADER_BG,
                     padding: density.metricPadding,
                     textAlign: 'left',
                     fontSize: density.headerFontSize,
@@ -655,7 +658,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                     top: 0,
                     left: density.metricWidthPx,
                     zIndex: 40,
-                    background: 'var(--c-surface-hover)',
+                    background: SOLID_HEADER_BG,
                     padding: density.metricPadding,
                     textAlign: 'left',
                     fontSize: density.headerFontSize * 1.1,
@@ -681,7 +684,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                       position: 'sticky',
                       top: 0,
                       zIndex: 30,
-                      background: 'var(--c-surface-hover)',
+                      background: SOLID_HEADER_BG,
                       padding: density.cellPadding,
                       textAlign: 'right',
                       fontSize: density.headerFontSize,
@@ -704,7 +707,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                     position: 'sticky',
                     top: 0,
                     zIndex: 30,
-                    background: 'var(--c-surface-hover)',
+                    background: SOLID_HEADER_BG,
                     padding: density.growthPadding,
                     textAlign: 'right',
                     fontSize: density.headerFontSize,
@@ -742,7 +745,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                 const rowBackground = rowIndex % 2 === 0
                   ? 'var(--c-surface-2)'
                   : 'var(--c-surface-hover)';
-                const stickyCellBackground = rowBackground;
+                const stickyCellBackground = `linear-gradient(${rowBackground}, ${rowBackground}), linear-gradient(${rowBackground}, ${rowBackground}), ${SOLID_CONTAINER_BG}`;
 
                 return (
                   <tr key={`${row.metric}-${rowIndex}`} style={{ background: rowBackground }}>
