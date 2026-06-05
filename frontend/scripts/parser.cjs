@@ -501,6 +501,9 @@ const MARKET_SUMMARY_METRICS = [
   'India Nominal GDP (YOY %)',
   'India Bank Credit growth',
   'Monthly IPO Data',
+  '% of Stocks above 50 DMA',
+  '% of Stocks above 100 DMA',
+  '% of Stocks above 200 DMA',
 ];
 
 const MARKET_METRIC_UNITS = {
@@ -510,6 +513,9 @@ const MARKET_METRIC_UNITS = {
   'India Nominal GDP (YOY %)': '%',
   'India Bank Credit growth': '%',
   'Monthly IPO Data': 'units',
+  '% of Stocks above 50 DMA': '%',
+  '% of Stocks above 100 DMA': '%',
+  '% of Stocks above 200 DMA': '%',
 };
 
 function formatMarketMetricValue(metricName, value) {
@@ -616,6 +622,9 @@ function buildMarketSectorFromSeriesMap(seriesMap = {}) {
       getChart('India Nominal GDP (YOY %)', '#8b5cf6'),
       getChart('India Bank Credit growth', '#22c55e'),
       getChart('Monthly IPO Data', '#f59e0b'),
+      getChart('% of Stocks above 50 DMA', '#ec4899'),
+      getChart('% of Stocks above 100 DMA', '#8b5cf6'),
+      getChart('% of Stocks above 200 DMA', '#10b981'),
     ].filter(Boolean),
     summaryGrowthMetrics,
   };

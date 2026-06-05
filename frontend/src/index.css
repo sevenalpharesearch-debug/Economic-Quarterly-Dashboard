@@ -456,7 +456,7 @@ tr:hover {
   background: var(--c-kpi-bg);
   border: 1px solid var(--c-kpi-border);
   border-radius: 16px;
-  padding: 18px 20px;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -479,8 +479,8 @@ tr:hover {
 .kpi-accent {
   position: absolute;
   left: 0;
-  top: 18px;
-  bottom: 18px;
+  top: 16px;
+  bottom: 16px;
   width: 3px;
   background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
   border-radius: 0 4px 4px 0;
@@ -494,7 +494,7 @@ tr:hover {
 }
 
 .kpi-title {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--c-text-2);
   text-transform: uppercase;
@@ -562,34 +562,38 @@ tr:hover {
 .kpi-growth-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   margin-top: auto;
 }
 
 .growth-item {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   background: var(--c-surface-2);
   border: 1px solid var(--c-divider-2);
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 8px 6px;
+  border-radius: 10px;
   transition: background 0.2s ease;
+  min-width: 0;
 }
 
 .growth-label {
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 800;
   color: var(--c-text-4);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .growth-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 12.5px;
   font-weight: 700;
   white-space: nowrap;
 }

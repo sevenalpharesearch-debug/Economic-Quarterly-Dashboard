@@ -132,6 +132,9 @@ const SUMMARY_GROWTH_CONFIG = {
       'India Nominal GDP (YOY %)',
       'India Bank Credit growth',
       'Monthly IPO Data',
+      '% of Stocks above 50 DMA',
+      '% of Stocks above 100 DMA',
+      '% of Stocks above 200 DMA',
     ],
   },
   equity: {
