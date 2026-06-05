@@ -492,6 +492,7 @@ function normalizeMetricName(value) {
 const METRIC_ALIASES = {
   'Midcap 100 P/E': ['MidCap 100'],
   'Monthly IPO Data': ['IPO Monthly Number'],
+  'India Nominal GDP (YOY %)': ['India Nominal GDP'],
 };
 
 const MARKET_SUMMARY_METRICS = [
