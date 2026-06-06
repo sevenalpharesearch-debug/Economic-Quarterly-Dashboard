@@ -45,8 +45,23 @@ function buildMetricSeries(metricName, sheetData) {
 const SUMMARY_GROWTH_CATALOG = Object.fromEntries(
   Object.entries(SUMMARY_GROWTH_CONFIG).map(([sectorId, sectorConfig]) => {
     const sheetData = workbookData[sectorConfig.sheet] || {};
-    const metrics = sectorConfig.metrics
-      .map((metricName) => buildMetricSeries(metricName, sheetData));
+    const added = new Set();
+    const metrics = [];
+
+    // Add configured metrics first
+    sectorConfig.metrics.forEach((metricName) => {
+      added.add(normalizeMetricName(metricName));
+      metrics.push(buildMetricSeries(metricName, sheetData));
+    });
+
+    // Append any extra unconfigured metrics found in the sheet
+    Object.keys(sheetData).forEach((sheetMetricKey) => {
+      const normKey = normalizeMetricName(sheetMetricKey);
+      if (!added.has(normKey)) {
+        added.add(normKey);
+        metrics.push(buildMetricSeries(sheetMetricKey, sheetData));
+      }
+    });
 
     return [sectorId, metrics];
   })

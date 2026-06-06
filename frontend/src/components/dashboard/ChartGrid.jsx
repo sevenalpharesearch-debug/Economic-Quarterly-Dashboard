@@ -50,7 +50,9 @@ function formatDisplayMetricName(name) {
     'shanghai composite index': 'Shanghai Composite Index (China)',
     'csi 300': 'CSI 300 (China)',
     'euro stoxx 50': 'EURO STOXX 50 (Europe)',
-    'stoxx europe 600': 'STOXX Europe 600 (Europe)'
+    'stoxx europe 600': 'STOXX Europe 600 (Europe)',
+    'natural gas (india)': 'Natural Gas (India)',
+    'natural gas (us)': 'Natural Gas (US)'
   };
   
   return mapping[lower] || metric;

@@ -169,6 +169,10 @@ function calculateGrowth(firstValue, lastValue, unit, metricName = '') {
     return ((lastValue - firstValue) / Math.abs(firstValue)) * 100;
   }
 
+  if (normalizeMetricName(metricName) === 'banking liquidity') {
+    return ((firstValue - lastValue) / firstValue) * 100;
+  }
+
   return ((lastValue - firstValue) / firstValue) * 100;
 }
 
@@ -726,7 +730,19 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
 
             <tbody>
               {displayRows.map((row, rowIndex) => {
-                const isPositive = isFiniteNumber(row.growth) ? row.growth >= 0 : null;
+                let isPositive = isFiniteNumber(row.growth) ? row.growth >= 0 : null;
+                if (isPositive !== null) {
+                  const normName = normalizeMetricName(row.metric);
+                  const invertColor = industryId === 'commodities' || industryId === 'treasury' ||
+                    (industryId === 'macro' && ['retail inflation cpi', 'india vix', 'dollar rupee exchange rate', 'dxy index'].includes(normName)) ||
+                    (industryId === 'transport' && normName === 'crude oil brent');
+
+                  if (normName === 'banking liquidity') {
+                    isPositive = row.growth <= 0;
+                  } else if (invertColor) {
+                    isPositive = row.growth <= 0;
+                  }
+                }
                 const growthColor = isPositive == null
                   ? 'var(--c-text-4)'
                   : isPositive

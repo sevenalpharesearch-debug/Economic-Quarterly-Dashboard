@@ -35,6 +35,11 @@ const KPI_METRIC_REFERENCE = {
     'PV Registration': 'units',
     'CV Registration': 'units',
     'Tractor Registration': 'units',
+    'E-2 Wheelers': 'Units',
+    'E-3 Wheelers': 'Units',
+    'E-4 Wheelers': 'Units',
+    'E- Buses': 'Units',
+    'Crude Oil (Brent)': 'USD/ barrel',
   },
   services: {
     'Service PMI': 'index',
@@ -87,6 +92,8 @@ const KPI_METRIC_REFERENCE = {
     Lead: 'CNY/MT',
     Cadmium: 'CNY/MT',
     'Natural gas (india)': 'USD/MMBtu',
+    'Crude Oil (Brent)': 'USD/ barrel',
+    'Natural gas': 'USD/MMBtu',
   },
   treasury: {
     'US-10Y': '%',

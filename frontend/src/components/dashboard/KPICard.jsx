@@ -43,9 +43,13 @@ export default function KPICard({ name, label, value, mom, yoy }) {
     if (!isNA) {
       if (up === true) {
         statusClass = 'positive';
-        arrow = '↑';
       } else if (up === false) {
         statusClass = 'negative';
+      }
+
+      if (change.startsWith('+')) {
+        arrow = '↑';
+      } else if (change.startsWith('−')) {
         arrow = '↓';
       }
     }

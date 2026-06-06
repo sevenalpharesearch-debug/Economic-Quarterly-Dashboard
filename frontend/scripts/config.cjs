@@ -43,6 +43,10 @@ const SUMMARY_GROWTH_CONFIG = {
       'PV Registration',
       'CV Registration',
       'Tractor Registration',
+      'E-2 Wheelers',
+      'E-3 Wheelers',
+      'E-4 Wheelers',
+      'E- Buses',
     ],
   },
   services: {

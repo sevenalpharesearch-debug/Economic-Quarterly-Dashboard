@@ -84,6 +84,7 @@ function normalizeUnit(unit) {
     cny: 'CNY',
     'inr/50kg': 'INR/50Kg',
     'inr/quintal': 'INR/Quintal',
+    'usd/ barrel': 'USD/ barrel',
   };
 
   return unitAliases[normalized] || String(unit || '').trim();
@@ -100,16 +101,19 @@ function parseMetricIdentity(metricName, fallbackUnit) {
   const rawMetricName = String(metricName || '').trim();
   
   // Do not strip specific metric names to avoid duplicate "Credit Deployed" labels
-  const preserveFullNames = [
-    'Credit Deployed (Agri)',
-    'Credit Deployed (Personal)',
-    'Credit Deployed (Industries)',
-    'Credit Deployed (Services)'
-  ];
+  const preserveFullNames = {
+    'Credit Deployed (Agri)': 'Credit Deployed (Agri)',
+    'Credit Deployed (Personal)': 'Credit Deployed (Personal)',
+    'Credit Deployed (Industries)': 'Credit Deployed (Industries)',
+    'Credit Deployed (Services)': 'Credit Deployed (Services)',
+    'Natural gas (US)': 'Natural Gas (US)',
+    'Natural gas (india)': 'Natural Gas (India)',
+    'Crude Oil (Brent)': 'Crude Oil (Brent)'
+  };
 
-  if (preserveFullNames.includes(rawMetricName)) {
+  if (preserveFullNames[rawMetricName]) {
     return {
-      name: rawMetricName,
+      name: preserveFullNames[rawMetricName],
       unit: normalizeUnit(fallbackUnit),
     };
   }
@@ -182,7 +186,7 @@ function parseMetricValueParts(value, rawUnit) {
   }
 
   if (normalizedUnit === 'index' || normalizedUnit === 'units') {
-    const displayUnit = normalizedUnit === 'index' ? 'Index' : 'units';
+    const displayUnit = normalizedUnit === 'index' ? 'Index' : 'Units';
     return {
       value: numericValue,
       currency: '',
@@ -309,28 +313,39 @@ function formatAllMetricKpiValue(val, unit) {
   return parseMetricValueParts(val, unit).displayValue;
 }
 
-function calculateGrowth(current, previous, unit, metricName = '') {
+function calculateGrowth(current, previous, unit, metricName = '', industryId = '') {
   if (current == null || previous == null) return { change: 'N/A', up: null, isNA: true };
   const delta = current - previous;
-  let up = delta >= 0;
-  let sign = up ? '+' : '';
+  const normName = normalizeMetricName(metricName);
+  const invertColor = industryId === 'commodities' || industryId === 'treasury' ||
+    (industryId === 'macro' && ['retail inflation cpi', 'india vix', 'dollar rupee exchange rate', 'dxy index'].includes(normName)) ||
+    (industryId === 'transport' && normName === 'crude oil brent');
+
+  let up = invertColor ? delta <= 0 : delta >= 0;
+  let sign = delta > 0 ? '+' : '';
 
   if (unit === '%') {
     const bps = Math.round(delta * 100);
     const displaySign = bps > 0 ? '+' : (bps < 0 ? '-' : '');
+    if (invertColor) up = bps <= 0;
     return { change: `${displaySign}${Math.abs(bps)} bps`, up, isNA: false };
   }
 
   if (previous !== 0) {
-    if (normalizeMetricName(metricName) === 'banking liquidity') {
-      const growthVal = (delta / previous) * 100;
-      up = growthVal >= 0;
+    if (normName === 'banking liquidity') {
+      const growthVal = ((previous - current) / previous) * 100;
+      up = growthVal <= 0;
       sign = growthVal > 0 ? '+' : '';
       return { change: `${sign}${growthVal.toFixed(1)}%`, up, isNA: false };
     }
-    return { change: `${sign}${((delta / Math.abs(previous)) * 100).toFixed(1)}%`, up, isNA: false };
+    const percentGrowth = (delta / Math.abs(previous)) * 100;
+    if (invertColor) up = percentGrowth <= 0;
+    else up = percentGrowth >= 0;
+    sign = percentGrowth > 0 ? '+' : '';
+    return { change: `${sign}${percentGrowth.toFixed(1)}%`, up, isNA: false };
   }
 
+  if (invertColor) up = delta <= 0;
   return { change: `${sign}${delta.toFixed(2)}`, up, isNA: false };
 }
 
@@ -378,8 +393,8 @@ function buildAllSectorKpis(industry) {
       const previousMom = numericValues.length >= 2 ? numericValues[numericValues.length - 2] : null;
       const previousYoy = numericValues.length >= 13 ? numericValues[numericValues.length - 13] : null;
 
-      const mom = calculateGrowth(current, previousMom, parsedMetric.unit, metricName);
-      const yoy = calculateGrowth(current, previousYoy, parsedMetric.unit, metricName);
+      const mom = calculateGrowth(current, previousMom, parsedMetric.unit, metricName, industry.id);
+      const yoy = calculateGrowth(current, previousYoy, parsedMetric.unit, metricName, industry.id);
 
       return {
         name: finalName,

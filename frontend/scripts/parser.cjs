@@ -675,25 +675,50 @@ function buildSummaryGrowthMetrics(industryId, allData) {
   if (!sectorConfig) return [];
 
   const sheetData = allData[sectorConfig.sheet] || {};
+  const added = new Set();
+  const results = [];
 
-  return sectorConfig.metrics
-    .map((metricName) => {
-      const series = get(sheetData, metricName);
-      if (!series.length) return null;
+  sectorConfig.metrics.forEach((metricName) => {
+    const series = get(sheetData, metricName);
+    if (!series.length) return;
 
-      return {
-        title: metricName,
-        description: getDescription(sheetData, metricName),
+    added.add(normalizeMetricName(metricName));
+
+    results.push({
+      title: metricName,
+      description: getDescription(sheetData, metricName),
+      labels: lbl(series),
+      series: [
+        {
+          name: metricName,
+          data: vals(series),
+        },
+      ],
+    });
+  });
+
+  Object.keys(sheetData).forEach((sheetMetricKey) => {
+    const normKey = normalizeMetricName(sheetMetricKey);
+    if (!added.has(normKey)) {
+      const series = get(sheetData, sheetMetricKey);
+      if (!series.length) return;
+      added.add(normKey);
+
+      results.push({
+        title: sheetMetricKey,
+        description: getDescription(sheetData, sheetMetricKey),
         labels: lbl(series),
         series: [
           {
-            name: metricName,
+            name: sheetMetricKey,
             data: vals(series),
           },
         ],
-      };
-    })
-    .filter(Boolean);
+      });
+    }
+  });
+
+  return results;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
