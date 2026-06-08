@@ -47,6 +47,10 @@ const SUMMARY_GROWTH_CONFIG = {
       'E-3 Wheelers',
       'E-4 Wheelers',
       'E- Buses',
+      '2W EV Penetration',
+      '3W EV Penetration',
+      'Other EV Penetration (PV, CV & Tractor)',
+      'Overall EV Penetration',
     ],
   },
   services: {

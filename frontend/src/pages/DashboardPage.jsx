@@ -99,7 +99,7 @@ function toTitleCase(value) {
 
 function parseMetricIdentity(metricName, fallbackUnit) {
   const rawMetricName = String(metricName || '').trim();
-  
+
   // Do not strip specific metric names to avoid duplicate "Credit Deployed" labels
   const preserveFullNames = {
     'Credit Deployed (Agri)': 'Credit Deployed (Agri)',
@@ -108,7 +108,15 @@ function parseMetricIdentity(metricName, fallbackUnit) {
     'Credit Deployed (Services)': 'Credit Deployed (Services)',
     'Natural gas (US)': 'Natural Gas (US)',
     'Natural gas (india)': 'Natural Gas (India)',
-    'Crude Oil (Brent)': 'Crude Oil (Brent)'
+    'Crude Oil (Brent)': 'Crude Oil (Brent)',
+    'TVS MOTOR': 'TVS MOTOR (E-2w Market Share)',
+    'BAJAJ AUTO': 'BAJAJ AUTO (E-2w Market Share)',
+    'OLA ELECTRIC': 'OLA ELECTRIC (E-2w Market Share)',
+    'ATHER ENERGY': 'ATHER ENERGY (E-2w Market Share)',
+    'HERO MOTOCORP': 'HERO MOTOCORP (E-2w Market Share)',
+    'Other EV Penetration (PV, CV & Tractor)': 'Other EV Penetration (PV, CV & Tractor)',
+    'India Real GDP (YOY %)': 'India Real GDP (YOY %)',
+    'India Nominal GDP (YOY %)': 'India Nominal GDP (YOY %)'
   };
 
   if (preserveFullNames[rawMetricName]) {
@@ -242,14 +250,14 @@ function parseMetricValueParts(value, rawUnit) {
 
 function UNUSED_fmtKpiVal(val, unit) {
   if (val == null || isNaN(val)) return '—';
-  const abs  = Math.abs(val);
+  const abs = Math.abs(val);
   const sign = val < 0 ? '-' : '';
   if (unit === '%') return `${val.toFixed(2)}%`;
   if (unit === 'Rs.B') return `${sign}Rs.${abs >= 1000 ? (abs / 1000).toFixed(1) + 'T' : abs.toFixed(0)}B`;
   if (unit === 'Rs.' || unit === 'Rs') return `${sign}Rs.${abs.toFixed(2)}`;
   if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(2)}M`;
-  if (abs >= 1_000)     return `${sign}${(abs / 1_000).toFixed(1)}K`;
-  if (abs >= 10)        return `${sign}${abs.toFixed(1)} ${unit}`;
+  if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(1)}K`;
+  if (abs >= 10) return `${sign}${abs.toFixed(1)} ${unit}`;
   return `${sign}${abs.toFixed(2)} ${unit}`;
 }
 
@@ -385,7 +393,7 @@ function buildAllSectorKpis(industry) {
 
       const parsedMetric = parseMetricIdentity(metricName, getMetricUnit(sectorReference, metricName));
       const parsedValue = parseMetricValueParts(latestValue, parsedMetric.unit);
-      
+
       const isIndex = normalizeUnit(parsedMetric.unit) === 'index';
       const finalName = isIndex ? `${parsedMetric.name} (Index)` : parsedMetric.name;
 
@@ -454,7 +462,7 @@ export default function DashboardPage({ onLogout }) {
 
   useEffect(() => {
     refreshDefaultData();
-    refreshDatasetStatus().catch(() => {});
+    refreshDatasetStatus().catch(() => { });
   }, [refreshDefaultData, refreshDatasetStatus]);
 
   useEffect(() => {
@@ -696,32 +704,8 @@ export default function DashboardPage({ onLogout }) {
                 );
               })}
             </div>
-            
-            {/* KPI Footer Legend */}
-            <div className="kpi-legend" style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: 16,
-              marginTop: 16,
-              fontSize: 12,
-              color: 'var(--c-text-3)',
-            }}>
-              <div style={{ display: 'flex', gap: 16 }}>
-                <span><strong>MoM:</strong> Month-over-Month Growth</span>
-                <span><strong>YoY:</strong> Year-over-Year Growth</span>
-              </div>
-              <div className="divider-dot" style={{ width: 1, height: 12, background: 'var(--c-border)' }} />
-              <div style={{ display: 'flex', gap: 12 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ color: 'var(--c-success)', fontWeight: 600 }}>↑</span> Positive Growth
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ color: 'var(--c-error)', fontWeight: 600 }}>↓</span> Negative Growth
-                </span>
-              </div>
-            </div>
+
+
           </CollapsibleSection>
 
           {/* Summary Table */}
@@ -731,41 +715,78 @@ export default function DashboardPage({ onLogout }) {
                 industryId={industryData.id}
                 summaryMetrics={industryData.summaryGrowthMetrics}
                 metrics={industryData.charts}
+                excludeMetrics={['TVS MOTOR', 'BAJAJ AUTO', 'OLA ELECTRIC', 'ATHER ENERGY', 'HERO MOTOCORP', '2W EV Penetration', '3W EV Penetration', 'Other EV Penetration (PV, CV & Tractor)', 'Overall EV Penetration']}
               />
             </div>
           </CollapsibleSection>
+
+          {industryData.id === 'transport' && (
+            <CollapsibleSection title="Top 5 Players - EV 2 Wheeler Market Share">
+              <div style={{ marginTop: 12 }}>
+                <SummaryTable
+                  industryId={industryData.id}
+                  summaryMetrics={industryData.summaryGrowthMetrics}
+                  metrics={industryData.charts}
+                  title="Market Share - EV 2 Wheeler"
+                  includeMetrics={['TVS MOTOR', 'BAJAJ AUTO', 'OLA ELECTRIC', 'ATHER ENERGY', 'HERO MOTOCORP']}
+                  hideGrowth={true}
+                  forceUnit="%"
+                  colorScaleRowWise={true}
+                  sortByLatest={true}
+                />
+              </div>
+            </CollapsibleSection>
+          )}
+
+          {industryData.id === 'transport' && (
+            <CollapsibleSection title="Ev Penetration in India">
+              <div style={{ marginTop: 12 }}>
+                <SummaryTable
+                  industryId={industryData.id}
+                  summaryMetrics={industryData.summaryGrowthMetrics}
+                  metrics={industryData.charts}
+                  title="Ev Penetration in India"
+                  includeMetrics={['2W EV Penetration', '3W EV Penetration', 'Other EV Penetration (PV, CV & Tractor)', 'Overall EV Penetration']}
+                  hideGrowth={true}
+                  forceUnit="%"
+                  colorScaleRowWise={true}
+                  sortByLatest={false}
+                />
+              </div>
+            </CollapsibleSection>
+          )}
 
           {/* Charts */}
           <CollapsibleSection
             title="Trend Analysis"
             actions={
               <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                  {['1Y', '3Y', '5Y', 'Max'].map(f => (
-                    <button
-                      key={f}
-                      onClick={() => setTrendFilter(f)}
-                      style={{
-                        padding: '3px 10px',
-                        borderRadius: 999,
-                        fontSize: 10,
-                        fontWeight: 600,
-                        border: trendFilter === f
-                          ? '1px solid rgba(99,102,241,0.5)'
-                          : '1px solid var(--c-border)',
-                        background: trendFilter === f
-                          ? 'rgba(99,102,241,0.15)'
-                          : 'transparent',
-                        color: trendFilter === f ? '#a5b4fc' : 'var(--c-text-4)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        transition: 'all 0.15s ease',
-                        letterSpacing: '0.06em',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {f}
-                    </button>
-                  ))}
+                {['1Y', '3Y', '5Y', 'Max'].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setTrendFilter(f)}
+                    style={{
+                      padding: '3px 10px',
+                      borderRadius: 999,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      border: trendFilter === f
+                        ? '1px solid rgba(99,102,241,0.5)'
+                        : '1px solid var(--c-border)',
+                      background: trendFilter === f
+                        ? 'rgba(99,102,241,0.15)'
+                        : 'transparent',
+                      color: trendFilter === f ? '#a5b4fc' : 'var(--c-text-4)',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.15s ease',
+                      letterSpacing: '0.06em',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {f}
+                  </button>
+                ))}
               </div>
             }
           >

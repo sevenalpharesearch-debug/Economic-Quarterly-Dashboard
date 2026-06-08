@@ -52,7 +52,12 @@ function formatDisplayMetricName(name) {
     'euro stoxx 50': 'EURO STOXX 50 (Europe)',
     'stoxx europe 600': 'STOXX Europe 600 (Europe)',
     'natural gas (india)': 'Natural Gas (India)',
-    'natural gas (us)': 'Natural Gas (US)'
+    'natural gas (us)': 'Natural Gas (US)',
+    'tvs motor': 'TVS MOTOR (E-2w Market Share)',
+    'bajaj auto': 'BAJAJ AUTO (E-2w Market Share)',
+    'ola electric': 'OLA ELECTRIC (E-2w Market Share)',
+    'ather energy': 'ATHER ENERGY (E-2w Market Share)',
+    'hero motocorp': 'HERO MOTOCORP (E-2w Market Share)'
   };
   
   return mapping[lower] || metric;

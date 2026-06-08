@@ -312,7 +312,7 @@ function getMetricUnit(industryId, metricName) {
   return normalizeUnitText(matchedEntry?.[1]);
 }
 
-function buildDisplayRows(rows, visibleMonths, industryId) {
+function buildDisplayRows(rows, visibleMonths, industryId, forceUnit = null) {
   const distance = visibleMonths.length > 1 ? visibleMonths.length - 1 : 0;
 
   return rows.map((row) => {
@@ -350,7 +350,7 @@ function buildDisplayRows(rows, visibleMonths, industryId) {
       }
     }
 
-    const unit = getMetricUnit(industryId, row.metric);
+    const unit = forceUnit || getMetricUnit(industryId, row.metric);
 
     return {
       ...row,
@@ -409,7 +409,7 @@ function getTableDensity(monthCount) {
 const SOLID_CONTAINER_BG = 'linear-gradient(var(--c-surface-2), var(--c-surface-2)), var(--c-bg)';
 const SOLID_HEADER_BG = `linear-gradient(var(--c-surface-hover), var(--c-surface-hover)), linear-gradient(var(--c-surface-hover), var(--c-surface-hover)), ${SOLID_CONTAINER_BG}`;
 
-export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
+export default function SummaryTable({ industryId, summaryMetrics, metrics, title = "Summary Growth Table", excludeMetrics = [], includeMetrics = [], hideGrowth = false, forceUnit = null, colorScaleRowWise = false, sortByLatest = false }) {
   const [filter, setFilter] = useState('12M');
   const [hoveredMetric, setHoveredMetric] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
@@ -420,14 +420,27 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
   }, [industryId]);
 
   const rows = useMemo(() => {
+    let baseRows;
     const explicitMetricRows = buildRowsFromMetricSeries(summaryMetrics);
-    if (explicitMetricRows.length) return explicitMetricRows;
+    if (explicitMetricRows.length) baseRows = explicitMetricRows;
+    else {
+      const workbookRows = buildRowsFromMetricSeries(workbookMetrics);
+      if (workbookRows.length) baseRows = workbookRows;
+      else baseRows = buildRowsFromCharts(metrics);
+    }
 
-    const workbookRows = buildRowsFromMetricSeries(workbookMetrics);
-    if (workbookRows.length) return workbookRows;
+    if (includeMetrics && includeMetrics.length > 0) {
+      const lowerIncludes = includeMetrics.map(m => String(m).toLowerCase().trim());
+      baseRows = baseRows.filter(r => lowerIncludes.includes(String(r.metric).toLowerCase().trim()));
+    }
 
-    return buildRowsFromCharts(metrics);
-  }, [summaryMetrics, workbookMetrics, metrics]);
+    if (excludeMetrics && excludeMetrics.length > 0) {
+      const lowerExcludes = excludeMetrics.map(m => String(m).toLowerCase().trim());
+      baseRows = baseRows.filter(r => !lowerExcludes.includes(String(r.metric).toLowerCase().trim()));
+    }
+
+    return baseRows;
+  }, [summaryMetrics, workbookMetrics, metrics, includeMetrics, excludeMetrics]);
 
   const visibleMonths = useMemo(
     () => buildVisibleMonths(rows, filter),
@@ -439,12 +452,86 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
   );
   const monthWidth = useMemo(() => {
     if (visibleMonths.length > 13) return '85px';
-    const reservedWidth = density.metricWidthPx + density.unitsWidthPx + density.growthWidthPx;
+    const growthWidth = hideGrowth ? 0 : density.growthWidthPx;
+    const reservedWidth = density.metricWidthPx + density.unitsWidthPx + growthWidth;
     return `calc((100% - ${reservedWidth}px) / ${Math.max(visibleMonths.length, 1)})`;
-  }, [density.growthWidthPx, density.metricWidthPx, density.unitsWidthPx, visibleMonths.length]);
+  }, [density.growthWidthPx, density.metricWidthPx, density.unitsWidthPx, visibleMonths.length, hideGrowth]);
   const displayRows = useMemo(() => {
-    return buildDisplayRows(rows, visibleMonths, industryId);
-  }, [rows, visibleMonths, industryId]);
+    let computedRows = buildDisplayRows(rows, visibleMonths, industryId, forceUnit);
+
+    if (sortByLatest) {
+      computedRows.sort((a, b) => {
+        const lastCellA = toNumber(a.monthCells[a.monthCells.length - 1]?.value);
+        const lastCellB = toNumber(b.monthCells[b.monthCells.length - 1]?.value);
+        const valA = lastCellA !== null ? lastCellA : -Infinity;
+        const valB = lastCellB !== null ? lastCellB : -Infinity;
+        return valB - valA;
+      });
+    }
+
+    if (colorScaleRowWise) {
+      computedRows = computedRows.map(row => {
+        const numericValues = row.monthCells
+          .map(cell => toNumber(cell.value))
+          .filter(val => val !== null);
+
+        if (numericValues.length === 0) return row;
+
+        const min = Math.min(...numericValues);
+        const max = Math.max(...numericValues);
+        const range = max - min;
+
+        const coloredCells = row.monthCells.map(cell => {
+          const val = toNumber(cell.value);
+          if (val === null) return cell;
+
+          let r, g, b;
+          if (range === 0) {
+            r = 255; g = 217; b = 102;
+          } else {
+            const ratio = (val - min) / range;
+            const stops = [
+              { val: 0.00, r: 248, g: 105, b: 107 }, // Red
+              { val: 0.25, r: 244, g: 177, b: 131 }, // Orange
+              { val: 0.50, r: 255, g: 217, b: 102 }, // Yellow
+              { val: 0.75, r: 169, g: 209, b: 142 }, // Light Green
+              { val: 1.00, r: 99, g: 190, b: 123 }   // Green
+            ];
+
+            let start = stops[0];
+            let end = stops[stops.length - 1];
+            for (let i = 0; i < stops.length - 1; i++) {
+              if (ratio >= stops[i].val && ratio <= stops[i + 1].val) {
+                start = stops[i];
+                end = stops[i + 1];
+                break;
+              }
+            }
+
+            if (start === end) {
+              r = start.r; g = start.g; b = start.b;
+            } else {
+              const t = (ratio - start.val) / (end.val - start.val);
+              r = Math.round(start.r + t * (end.r - start.r));
+              g = Math.round(start.g + t * (end.g - start.g));
+              b = Math.round(start.b + t * (end.b - start.b));
+            }
+          }
+
+          return {
+            ...cell,
+            textColor: '#000000',
+            backgroundColor: `rgb(${r}, ${g}, ${b})`,
+            fontWeight: 400
+          };
+        });
+
+        return { ...row, monthCells: coloredCells };
+      });
+    }
+
+    return computedRows;
+  }, [rows, visibleMonths, industryId, forceUnit, sortByLatest, colorScaleRowWise]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -562,7 +649,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
               className="mobile-title-text"
               style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text-1)' }}
             >
-              Summary Growth Table
+              {title}
             </h3>
             <span
               className="mobile-hide"
@@ -628,7 +715,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
               {visibleMonths.map((month) => (
                 <col className="mobile-month-col" key={month.key} style={{ width: monthWidth }} />
               ))}
-              <col className="mobile-growth-col" style={{ width: `${density.growthWidthPx}px` }} />
+              {!hideGrowth && <col className="mobile-growth-col" style={{ width: `${density.growthWidthPx}px` }} />}
             </colgroup>
 
             <thead>
@@ -705,26 +792,28 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                   </th>
                 ))}
 
-                <th
-                  className="mobile-growth-col mobile-header-cell"
-                  style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 30,
-                    background: SOLID_HEADER_BG,
-                    padding: density.growthPadding,
-                    textAlign: 'right',
-                    fontSize: density.headerFontSize,
-                    fontWeight: 800,
-                    color: '#a5b4fc',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    whiteSpace: 'nowrap',
-                    borderBottom: '1px solid var(--c-divider)',
-                  }}
-                >
-                  % Growth
-                </th>
+                {!hideGrowth && (
+                  <th
+                    className="mobile-growth-col mobile-header-cell"
+                    style={{
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 30,
+                      background: SOLID_HEADER_BG,
+                      padding: density.growthPadding,
+                      textAlign: 'right',
+                      fontSize: density.headerFontSize,
+                      fontWeight: 800,
+                      color: '#a5b4fc',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      whiteSpace: 'nowrap',
+                      borderBottom: '1px solid var(--c-divider)',
+                    }}
+                  >
+                    % Growth
+                  </th>
+                )}
               </tr>
             </thead>
 
@@ -844,7 +933,9 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                           padding: density.cellPadding,
                           textAlign: 'right',
                           fontSize: density.cellFontSize,
-                          color: 'var(--c-text-2)',
+                          color: cell.textColor || 'var(--c-text-2)',
+                          background: cell.backgroundColor || 'transparent',
+                          fontWeight: cell.fontWeight || 400,
                           whiteSpace: 'nowrap',
                           fontVariantNumeric: 'tabular-nums',
                           letterSpacing: '-0.01em',
@@ -859,36 +950,38 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics }) {
                       </td>
                     ))}
 
-                    <td
-                      className="mobile-growth-col"
-                      style={{
-                        padding: density.growthPadding,
-                        textAlign: 'right',
-                        verticalAlign: 'middle',
-                        borderBottom: '1px solid var(--c-divider-2)',
-                      }}
-                    >
-                      <span
+                    {!hideGrowth && (
+                      <td
+                        className="mobile-growth-col"
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          minWidth: '76px',
-                          padding: '4px 12px',
-                          borderRadius: '999px',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          color: growthColor,
-                          background: growthBackground,
-                          border: `1px solid ${growthBorder}`,
-                          whiteSpace: 'nowrap',
-                          fontVariantNumeric: 'tabular-nums',
-                          lineHeight: 1,
+                          padding: density.growthPadding,
+                          textAlign: 'right',
+                          verticalAlign: 'middle',
+                          borderBottom: '1px solid var(--c-divider-2)',
                         }}
                       >
-                        {formatGrowthValue(row.growth, row.unit)}
-                      </span>
-                    </td>
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '76px',
+                            padding: '4px 12px',
+                            borderRadius: '999px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            color: growthColor,
+                            background: growthBackground,
+                            border: `1px solid ${growthBorder}`,
+                            whiteSpace: 'nowrap',
+                            fontVariantNumeric: 'tabular-nums',
+                            lineHeight: 1,
+                          }}
+                        >
+                          {formatGrowthValue(row.growth, row.unit)}
+                        </span>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

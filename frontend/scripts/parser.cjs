@@ -675,6 +675,62 @@ function buildSummaryGrowthMetrics(industryId, allData) {
   if (!sectorConfig) return [];
 
   const sheetData = allData[sectorConfig.sheet] || {};
+
+  if (industryId === 'transport') {
+    const twoW = get(sheetData, '2W Registration');
+    const threeW = get(sheetData, '3W Registration');
+    const pv = get(sheetData, 'PV Registration');
+    const cv = get(sheetData, 'CV Registration');
+    const tractor = get(sheetData, 'Tractor Registration');
+
+    const eTwoW = get(sheetData, 'E-2 Wheelers');
+    const eThreeW = get(sheetData, 'E-3 Wheelers');
+    const eFourW = get(sheetData, 'E-4 Wheelers');
+    const eBuses = get(sheetData, 'E- Buses');
+    const baseSeries = twoW.length > 0 ? twoW : (eTwoW.length > 0 ? eTwoW : []);
+
+    if (baseSeries.length > 0) {
+      const twoWPenetration = [];
+      const threeWPenetration = [];
+      const fourWPenetration = [];
+      const overallPenetration = [];
+
+      baseSeries.forEach(([dateLabel]) => {
+        const getVal = (series) => {
+          const point = series.find(([label]) => label === dateLabel);
+          return point ? point[1] : 0;
+        };
+
+        const v2W = getVal(twoW);
+        const v3W = getVal(threeW);
+        const vPV = getVal(pv);
+        const vCV = getVal(cv);
+        const vTractor = getVal(tractor);
+
+        const vE2W = getVal(eTwoW);
+        const vE3W = getVal(eThreeW);
+        const vE4W = getVal(eFourW);
+        const vEBuses = getVal(eBuses);
+
+        twoWPenetration.push([dateLabel, v2W ? (vE2W / v2W) * 100 : 0]);
+        threeWPenetration.push([dateLabel, v3W ? (vE3W / v3W) * 100 : 0]);
+        
+        const denOther = vPV + vCV + vTractor;
+        const numOther = vE4W; // E-Buses removed
+        fourWPenetration.push([dateLabel, denOther ? (numOther / denOther) * 100 : 0]);
+
+        const denOverall = v2W + v3W + vPV + vCV + vTractor;
+        const numOverall = vE2W + vE3W + vE4W + vEBuses;
+        overallPenetration.push([dateLabel, denOverall ? (numOverall / denOverall) * 100 : 0]);
+      });
+
+      sheetData['2W EV Penetration'] = { points: twoWPenetration, description: '2W EV Penetration %' };
+      sheetData['3W EV Penetration'] = { points: threeWPenetration, description: '3W EV Penetration %' };
+      sheetData['Other EV Penetration (PV, CV & Tractor)'] = { points: fourWPenetration, description: 'Other EV Penetration (PV, CV & Tractor) %' };
+      sheetData['Overall EV Penetration'] = { points: overallPenetration, description: 'Overall EV Penetration %' };
+    }
+  }
+
   const added = new Set();
   const results = [];
 
@@ -699,6 +755,7 @@ function buildSummaryGrowthMetrics(industryId, allData) {
 
   Object.keys(sheetData).forEach((sheetMetricKey) => {
     const normKey = normalizeMetricName(sheetMetricKey);
+    if (normKey === normalizeMetricName('India Nominal GDP')) return;
     if (!added.has(normKey)) {
       const series = get(sheetData, sheetMetricKey);
       if (!series.length) return;
