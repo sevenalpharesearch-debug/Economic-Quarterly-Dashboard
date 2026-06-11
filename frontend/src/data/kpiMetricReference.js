@@ -130,6 +130,9 @@ const KPI_METRIC_REFERENCE = {
     '% of Stocks above 200 DMA': '%',
     'Nifty smallcap 250 P/E': 'P/E',
     'Nifty smallcap 250': 'P/E',
+    'SIP Contribution': 'Rs.Cr',
+    'DII Flows': 'Rs.Cr',
+    'FII Flows': 'Rs.Cr',
   },
   equity: {
     'Nifty 50': 'pts',
