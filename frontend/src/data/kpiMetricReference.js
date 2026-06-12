@@ -133,6 +133,7 @@ const KPI_METRIC_REFERENCE = {
     'SIP Contribution': 'Rs.Cr',
     'DII Flows': 'Rs.Cr',
     'FII Flows': 'Rs.Cr',
+    'Ipo Fundraising Trends': 'Rs.Cr',
   },
   equity: {
     'Nifty 50': 'pts',
