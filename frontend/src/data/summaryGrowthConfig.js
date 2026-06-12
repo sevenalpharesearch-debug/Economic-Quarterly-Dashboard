@@ -143,6 +143,7 @@ const SUMMARY_GROWTH_CONFIG = {
       '% of Stocks above 50 DMA',
       '% of Stocks above 100 DMA',
       '% of Stocks above 200 DMA',
+      'IPO Fundraising Trends',
     ],
   },
   equity: {

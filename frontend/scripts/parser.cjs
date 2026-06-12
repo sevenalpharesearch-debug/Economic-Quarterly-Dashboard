@@ -505,6 +505,7 @@ const MARKET_SUMMARY_METRICS = [
   '% of Stocks above 50 DMA',
   '% of Stocks above 100 DMA',
   '% of Stocks above 200 DMA',
+  'IPO Fundraising Trends',
 ];
 
 const MARKET_METRIC_UNITS = {
@@ -517,6 +518,7 @@ const MARKET_METRIC_UNITS = {
   '% of Stocks above 50 DMA': '%',
   '% of Stocks above 100 DMA': '%',
   '% of Stocks above 200 DMA': '%',
+  'IPO Fundraising Trends': 'Rs.Cr',
 };
 
 function formatMarketMetricValue(metricName, value) {
