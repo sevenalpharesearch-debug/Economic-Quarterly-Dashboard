@@ -165,6 +165,16 @@ const SUMMARY_GROWTH_CONFIG = {
       'STOXX Europe 600',
     ],
   },
+  goldData: {
+    sheet: 'Gold Data',
+    metrics: [
+      'India Gold Reserve',
+      'India Gold import (Volume)',
+      'China Gold import (Volume)',
+      'China Gold import (Value)',
+      'China Gold Reserves',
+    ],
+  },
 };
 
 export default SUMMARY_GROWTH_CONFIG;

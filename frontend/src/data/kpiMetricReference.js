@@ -151,6 +151,13 @@ const KPI_METRIC_REFERENCE = {
     'EURO STOXX 50': 'pts',
     'STOXX Europe 600': 'pts',
   },
+  goldData: {
+    'India Gold Reserve': 'INR Cr',
+    'India Gold import (Volume)': 'USD Millions',
+    'China Gold import (Volume)': 'kilogram',
+    'China Gold import (Value)': 'USD',
+    'China Gold Reserves': 'Mln Troy Ounces',
+  },
 };
 
 export default KPI_METRIC_REFERENCE;

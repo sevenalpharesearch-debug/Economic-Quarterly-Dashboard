@@ -325,7 +325,12 @@ function extractSeries(ws) {
   const startRowIdx = data.findIndex(r => r[0] === 'Start');
   if (startRowIdx === -1) return {};
 
-  const headerRow = data[startRowIdx];
+  let headerRow = data[startRowIdx];
+  
+  // If the row above 'Start' contains metric names, use it as the header row
+  if (startRowIdx > 0 && data[startRowIdx - 1] && typeof data[startRowIdx - 1][3] === 'string') {
+    headerRow = data[startRowIdx - 1];
+  }
   const seriesColumns = [];
   // Use col += 1 but skip the description column manually when a metric is found
   for (let col = 3; col < headerRow.length; col += 1) {
@@ -792,6 +797,7 @@ function buildDashboard(allData) {
   const cp   = allData['Commodity Price '] || allData['Commodity Price'] || {};
   const ty   = allData['Treasury Yield']               || {};
   const ix   = allData['Index']                        || {};
+  const gd   = allData['Gold Data']                    || {};
 
   // ── Dynamic table date labels (last 5 periods in the file) ────────────────
   const _allSeries = Object.values(allData).flatMap(sheet => 
@@ -814,7 +820,7 @@ function buildDashboard(allData) {
   const dxy     = get(ei, 'DXY Index');
   const depGr   = get(ei, 'India Deposit Growth Rate');
   const credGr  = get(ei, 'India Credit growth rate');
-  const goldRes = get(ei, 'India Gold Reserve');
+  const goldRes = get(gd, 'India Gold Reserve').length ? get(gd, 'India Gold Reserve') : get(ei, 'India Gold Reserve');
   const fxRes   = get(ei, 'India Total FX Reserves');
   const fxResUsd= get(ei, 'India FX Reserves (USD)');
 
@@ -1233,11 +1239,49 @@ function buildDashboard(allData) {
     ].filter(c => c.labels.length > 0),
   };
 
+  // ── Gold Data ────────────────────────────────────────────────────────────
+  const indGoldRes   = get(gd, 'India Gold Reserve');
+  const indGoldImpV  = get(gd, 'India Gold import (Volume)');
+  const chnGoldImpV  = get(gd, 'China Gold import (Volume)');
+  const chnGoldImpVa = get(gd, 'China Gold import (Value)');
+  const chnGoldRes   = get(gd, 'China Gold Reserves');
+
+  // ─────────────────────────────────────────────────────────────────────────
+  //  GOLD DATA
+  // ─────────────────────────────────────────────────────────────────────────
+  const goldData = {
+    id: 'goldData', label: 'Gold Data',
+    title: 'Gold Data Dashboard',
+    subtitle: 'Gold reserves and imports for India and China',
+    metrics: [
+      { label: 'India Gold Reserve (INR Cr)',        value: `INR ${safe(indGoldRes).toLocaleString('en-IN')} Cr`,    change: kch(indGoldRes)[0], up: kch(indGoldRes)[1] },
+      { label: 'India Gold import Vol (USD M)',      value: `$${safe(indGoldImpV).toLocaleString('en-IN')}M`,        change: kch(indGoldImpV)[0], up: kch(indGoldImpV)[1] },
+      { label: 'China Gold import Vol (kg)',         value: `${safe(chnGoldImpV).toLocaleString('en-IN')} kg`,       change: kch(chnGoldImpV)[0], up: kch(chnGoldImpV)[1] },
+      { label: 'China Gold import Value (USD)',      value: `$${safe(chnGoldImpVa).toLocaleString('en-IN')}`,        change: kch(chnGoldImpVa)[0], up: kch(chnGoldImpVa)[1] },
+      { label: 'China Gold Reserves (Mln oz)',       value: `${safe(chnGoldRes).toLocaleString('en-IN')} Mln oz`,    change: kch(chnGoldRes)[0], up: kch(chnGoldRes)[1] },
+    ],
+    tableColumns: QC,
+    tableRows: [
+      qr('India Gold Reserve',             indGoldRes),
+      qr('India Gold import (Volume)',     indGoldImpV),
+      qr('China Gold import (Volume)',     chnGoldImpV),
+      qr('China Gold import (Value)',      chnGoldImpVa),
+      qr('China Gold Reserves',            chnGoldRes),
+    ],
+    charts: [
+      { title: 'India Gold Reserve',             unit: 'INR Cr',          labels: lbl(indGoldRes),   series: [{ name: 'India Gold Reserve',         data: vals(indGoldRes),   color: '#d97706' }] },
+      { title: 'India Gold import (Volume)',     unit: 'USD Millions',    labels: lbl(indGoldImpV),  series: [{ name: 'India Gold import (Volume)', data: vals(indGoldImpV),  color: '#6366f1' }] },
+      { title: 'China Gold import (Volume)',     unit: 'kilogram',        labels: lbl(chnGoldImpV),  series: [{ name: 'China Gold import (Volume)', data: vals(chnGoldImpV),  color: '#ef4444' }] },
+      { title: 'China Gold import (Value)',      unit: 'USD',             labels: lbl(chnGoldImpVa), series: [{ name: 'China Gold import (Value)',  data: vals(chnGoldImpVa), color: '#10b981' }] },
+      { title: 'China Gold Reserves',            unit: 'Mln Troy Ounces', labels: lbl(chnGoldRes),   series: [{ name: 'China Gold Reserves',        data: vals(chnGoldRes),   color: '#8b5cf6' }] },
+    ].filter(c => c.labels.length > 0),
+  };
+
   const market = buildMarketSectorFromSeriesMap(
     buildSeriesMap(buildSummaryGrowthMetrics('market', allData))
   );
 
-  const industries = [macro, industrial, transport, services, banking, commodities, treasury, market, equity].filter(Boolean);
+  const industries = [macro, industrial, transport, services, banking, commodities, treasury, market, equity, goldData].filter(Boolean);
 
   return industries.map((industry) => ({
     ...industry,
