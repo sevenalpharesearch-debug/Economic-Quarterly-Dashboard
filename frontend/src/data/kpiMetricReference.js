@@ -153,7 +153,8 @@ const KPI_METRIC_REFERENCE = {
   },
   goldData: {
     'India Gold Reserve': 'INR Cr',
-    'India Gold import (Volume)': 'USD Millions',
+    'India Gold Import (Value)': 'USD Millions',
+    'India Gold Import (Volume)': 'kilogram',
     'China Gold import (Volume)': 'kilogram',
     'China Gold import (Value)': 'USD',
     'China Gold Reserves': 'Mln Troy Ounces',

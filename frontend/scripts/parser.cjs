@@ -1240,11 +1240,12 @@ function buildDashboard(allData) {
   };
 
   // ── Gold Data ────────────────────────────────────────────────────────────
-  const indGoldRes   = get(gd, 'India Gold Reserve');
-  const indGoldImpV  = get(gd, 'India Gold import (Volume)');
-  const chnGoldImpV  = get(gd, 'China Gold import (Volume)');
-  const chnGoldImpVa = get(gd, 'China Gold import (Value)');
-  const chnGoldRes   = get(gd, 'China Gold Reserves');
+  const indGoldRes     = get(gd, 'India Gold Reserve');
+  const indGoldImpVa   = get(gd, 'India Gold Import (Value)');
+  const indGoldImpVol  = get(gd, 'India Gold Import (Volume)');
+  const chnGoldImpV    = get(gd, 'China Gold import (Volume)');
+  const chnGoldImpVa   = get(gd, 'China Gold import (Value)');
+  const chnGoldRes     = get(gd, 'China Gold Reserves');
 
   // ─────────────────────────────────────────────────────────────────────────
   //  GOLD DATA
@@ -1255,7 +1256,8 @@ function buildDashboard(allData) {
     subtitle: 'Gold reserves and imports for India and China',
     metrics: [
       { label: 'India Gold Reserve (INR Cr)',        value: `INR ${safe(indGoldRes).toLocaleString('en-IN')} Cr`,    change: kch(indGoldRes)[0], up: kch(indGoldRes)[1] },
-      { label: 'India Gold import Vol (USD M)',      value: `$${safe(indGoldImpV).toLocaleString('en-IN')}M`,        change: kch(indGoldImpV)[0], up: kch(indGoldImpV)[1] },
+      { label: 'India Gold import Vol (USD M)',      value: `$${safe(indGoldImpVa).toLocaleString('en-IN')}M`,        change: kch(indGoldImpVa)[0], up: kch(indGoldImpVa)[1] },
+      { label: 'India Gold Import Vol (kg)',         value: `${safe(indGoldImpVol).toLocaleString('en-IN')} kg`,     change: kch(indGoldImpVol)[0], up: kch(indGoldImpVol)[1] },
       { label: 'China Gold import Vol (kg)',         value: `${safe(chnGoldImpV).toLocaleString('en-IN')} kg`,       change: kch(chnGoldImpV)[0], up: kch(chnGoldImpV)[1] },
       { label: 'China Gold import Value (USD)',      value: `$${safe(chnGoldImpVa).toLocaleString('en-IN')}`,        change: kch(chnGoldImpVa)[0], up: kch(chnGoldImpVa)[1] },
       { label: 'China Gold Reserves (Mln oz)',       value: `${safe(chnGoldRes).toLocaleString('en-IN')} Mln oz`,    change: kch(chnGoldRes)[0], up: kch(chnGoldRes)[1] },
@@ -1263,14 +1265,16 @@ function buildDashboard(allData) {
     tableColumns: QC,
     tableRows: [
       qr('India Gold Reserve',             indGoldRes),
-      qr('India Gold import (Volume)',     indGoldImpV),
+      qr('India Gold Import (Value)',      indGoldImpVa),
+      qr('India Gold Import (Volume)',     indGoldImpVol),
       qr('China Gold import (Volume)',     chnGoldImpV),
       qr('China Gold import (Value)',      chnGoldImpVa),
       qr('China Gold Reserves',            chnGoldRes),
     ],
     charts: [
       { title: 'India Gold Reserve',             unit: 'INR Cr',          labels: lbl(indGoldRes),   series: [{ name: 'India Gold Reserve',         data: vals(indGoldRes),   color: '#d97706' }] },
-      { title: 'India Gold import (Volume)',     unit: 'USD Millions',    labels: lbl(indGoldImpV),  series: [{ name: 'India Gold import (Volume)', data: vals(indGoldImpV),  color: '#6366f1' }] },
+      { title: 'India Gold Import (Value)',     unit: 'USD Millions',    labels: lbl(indGoldImpVa),  series: [{ name: 'India Gold Import (Value)', data: vals(indGoldImpVa),  color: '#6366f1' }] },
+      { title: 'India Gold Import (Volume)',    unit: 'kilogram',        labels: lbl(indGoldImpVol), series: [{ name: 'India Gold Import (Volume)', data: vals(indGoldImpVol), color: '#3b82f6' }] },
       { title: 'China Gold import (Volume)',     unit: 'kilogram',        labels: lbl(chnGoldImpV),  series: [{ name: 'China Gold import (Volume)', data: vals(chnGoldImpV),  color: '#ef4444' }] },
       { title: 'China Gold import (Value)',      unit: 'USD',             labels: lbl(chnGoldImpVa), series: [{ name: 'China Gold import (Value)',  data: vals(chnGoldImpVa), color: '#10b981' }] },
       { title: 'China Gold Reserves',            unit: 'Mln Troy Ounces', labels: lbl(chnGoldRes),   series: [{ name: 'China Gold Reserves',        data: vals(chnGoldRes),   color: '#8b5cf6' }] },

@@ -168,7 +168,8 @@ const SUMMARY_GROWTH_CONFIG = {
     sheet: 'Gold Data',
     metrics: [
       'India Gold Reserve',
-      'India Gold import (Volume)',
+      'India Gold Import (Value)',
+      'India Gold Import (Volume)',
       'China Gold import (Volume)',
       'China Gold import (Value)',
       'China Gold Reserves',

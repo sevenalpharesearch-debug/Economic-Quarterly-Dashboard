@@ -116,7 +116,11 @@ function parseMetricIdentity(metricName, fallbackUnit) {
     'HERO MOTOCORP': 'HERO MOTOCORP (E-2w Market Share)',
     'Other EV Penetration (PV, CV & Tractor)': 'Other EV Penetration (PV, CV & Tractor)',
     'India Real GDP (YOY %)': 'India Real GDP (YOY %)',
-    'India Nominal GDP (YOY %)': 'India Nominal GDP (YOY %)'
+    'India Nominal GDP (YOY %)': 'India Nominal GDP (YOY %)',
+    'China Gold import (Volume)': 'China Gold Import (Volume)',
+    'China Gold import (Value)': 'China Gold Import (Value)',
+    'India Gold Import (Value)': 'India Gold Import (Value)',
+    'India Gold Import (Volume)': 'India Gold Import (Volume)'
   };
 
   if (preserveFullNames[rawMetricName]) {

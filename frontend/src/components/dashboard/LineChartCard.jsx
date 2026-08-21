@@ -20,6 +20,10 @@ const CustomTooltip = ({ active, payload, label, unit }) => {
 
   const formattedLabel = String(label || '').replace(/\b20(\d{2})\b/g, '$1');
 
+  const displayValue = Math.abs(entry.value) >= 100
+    ? Math.round(entry.value).toLocaleString('en-IN')
+    : entry.value.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
   return (
     <div style={{
       background: '#ffffff',
@@ -35,7 +39,7 @@ const CustomTooltip = ({ active, payload, label, unit }) => {
       }}>
         <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: entry.color }} />
         <span style={{ fontWeight: 700, color: '#0f172a' }}>
-          {entry.value.toLocaleString()} {unit}
+          {displayValue} {unit}
         </span>
       </div>
     </div>
