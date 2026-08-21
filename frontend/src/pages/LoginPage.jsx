@@ -7,7 +7,7 @@ export default function LoginPage({ onLogin }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (id === 'Macrodashboard' && password === 'MD@54321') {
+    if (id === 'Macrodashboard' && password === 'Macro@123') {
       onLogin();
     } else {
       setError('Invalid ID or Password');
