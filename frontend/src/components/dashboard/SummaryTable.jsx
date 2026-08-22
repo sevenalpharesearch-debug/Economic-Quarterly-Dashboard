@@ -324,6 +324,17 @@ function buildDisplayRows(rows, visibleMonths, industryId, forceUnit = null) {
       value: row.valueByMonth[month.key] ?? null,
     }));
 
+    const validValues = monthCells
+      .map((cell) => toNumber(cell.value))
+      .filter((val) => val !== null);
+      
+    const isExcludedFromAverage = ["india real gdp yoy", "india nominal gdp yoy"]
+      .includes(normalizeMetricName(row.metric));
+
+    const average = (!isExcludedFromAverage && validValues.length > 0)
+      ? validValues.reduce((sum, val) => sum + val, 0) / validValues.length
+      : null;
+
     let startValue = undefined;
     let endValue = undefined;
 
@@ -355,6 +366,7 @@ function buildDisplayRows(rows, visibleMonths, industryId, forceUnit = null) {
     return {
       ...row,
       monthCells,
+      average,
       growth: calculateGrowth(startValue, endValue, unit, row.metric),
       unit,
     };
@@ -367,13 +379,13 @@ function getTableDensity(monthCount) {
       metricWidthPx: 260,
       unitsWidthPx: 140,
       growthWidthPx: 110,
-      headerFontSize: 11,
-      cellFontSize: 12.5,
-      metricFontSize: 12.5,
-      cellPadding: '13px 12px',
-      metricPadding: '13px 14px',
-      growthPadding: '13px 14px',
-      filterPadding: '4px 11px',
+      headerFontSize: 9.5,
+      cellFontSize: 10,
+      metricFontSize: 11.5,
+      cellPadding: '10px 12px',
+      metricPadding: '10px 14px',
+      growthPadding: '10px 14px',
+      filterPadding: '3px 11px',
     };
   }
 
@@ -382,13 +394,13 @@ function getTableDensity(monthCount) {
       metricWidthPx: 220,
       unitsWidthPx: 130,
       growthWidthPx: 105,
-      headerFontSize: 10.5,
-      cellFontSize: 11.5,
-      metricFontSize: 12,
-      cellPadding: '11px 9px',
-      metricPadding: '12px 12px',
-      growthPadding: '12px 12px',
-      filterPadding: '4px 10px',
+      headerFontSize: 9.5,
+      cellFontSize: 10,
+      metricFontSize: 11.5,
+      cellPadding: '10px 9px',
+      metricPadding: '10px 12px',
+      growthPadding: '10px 12px',
+      filterPadding: '3px 10px',
     };
   }
 
@@ -451,11 +463,12 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics, titl
     [visibleMonths.length]
   );
   const monthWidth = useMemo(() => {
-    if (visibleMonths.length > 13) return '85px';
+    if (filter === '24M') return '85px';
+    const totalMonthColumns = industryId === 'market' ? visibleMonths.length + 1 : visibleMonths.length;
     const growthWidth = hideGrowth ? 0 : density.growthWidthPx;
     const reservedWidth = density.metricWidthPx + density.unitsWidthPx + growthWidth;
-    return `calc((100% - ${reservedWidth}px) / ${Math.max(visibleMonths.length, 1)})`;
-  }, [density.growthWidthPx, density.metricWidthPx, density.unitsWidthPx, visibleMonths.length, hideGrowth]);
+    return `calc((100% - ${reservedWidth}px) / ${Math.max(totalMonthColumns, 1)})`;
+  }, [filter, density.growthWidthPx, density.metricWidthPx, density.unitsWidthPx, visibleMonths.length, hideGrowth, industryId]);
   const displayRows = useMemo(() => {
     let computedRows = buildDisplayRows(rows, visibleMonths, industryId, forceUnit);
 
@@ -715,6 +728,7 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics, titl
               {visibleMonths.map((month) => (
                 <col className="mobile-month-col" key={month.key} style={{ width: monthWidth }} />
               ))}
+              {industryId === 'market' && <col className="mobile-month-col" style={{ width: monthWidth }} />}
               {!hideGrowth && <col className="mobile-growth-col" style={{ width: `${density.growthWidthPx}px` }} />}
             </colgroup>
 
@@ -791,6 +805,29 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics, titl
                     {month.shortLabel}
                   </th>
                 ))}
+
+                {industryId === 'market' && (
+                  <th
+                    className="mobile-month-col mobile-header-cell"
+                    style={{
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 30,
+                      background: SOLID_HEADER_BG,
+                      padding: density.cellPadding,
+                      textAlign: 'right',
+                      fontSize: density.headerFontSize,
+                      fontWeight: 800,
+                      color: 'var(--c-text-1)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      whiteSpace: 'nowrap',
+                      borderBottom: '1px solid var(--c-divider)',
+                    }}
+                  >
+                    Average
+                  </th>
+                )}
 
                 {!hideGrowth && (
                   <th
@@ -949,6 +986,30 @@ export default function SummaryTable({ industryId, summaryMetrics, metrics, titl
                         </div>
                       </td>
                     ))}
+
+                    {industryId === 'market' && (
+                      <td
+                        className="mobile-month-col"
+                        style={{
+                          padding: density.cellPadding,
+                          textAlign: 'right',
+                          fontSize: density.cellFontSize,
+                          color: 'var(--c-text-2)',
+                          background: 'transparent',
+                          fontWeight: 400,
+                          whiteSpace: 'nowrap',
+                          fontVariantNumeric: 'tabular-nums',
+                          letterSpacing: '-0.01em',
+                          overflow: 'hidden',
+                          verticalAlign: 'middle',
+                          borderBottom: '1px solid var(--c-divider-2)',
+                        }}
+                      >
+                        <div className="mobile-cell-text" style={{ width: '100%', overflow: 'hidden' }}>
+                          {formatMonthlyValue(row.average)}
+                        </div>
+                      </td>
+                    )}
 
                     {!hideGrowth && (
                       <td
